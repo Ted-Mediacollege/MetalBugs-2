@@ -6,6 +6,7 @@ package net.ted80.MetalbugsServer
 	import net.ted80.MetalbugsServer.gui.GuiLog;
 	import net.ted80.MetalbugsServer.network.client.ClientManager;
 	import net.ted80.MetalbugsServer.network.policy.PolicyManager;
+	import net.ted80.MetalbugsServer.data.GameState;
 
 	public class Main extends Sprite
 	{
@@ -27,6 +28,9 @@ package net.ted80.MetalbugsServer
 		public function restartServer():void
 		{
 			ServerLog.addMessage("SERVER", "Restarting server...");
+			
+			GameState.LOBBY = true;
+			GameState.PLAYING = false;
 			
 			//POLICY MANAGER
 			if (policyManager != null) { policyManager.destroy(); }

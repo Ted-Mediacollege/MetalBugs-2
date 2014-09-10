@@ -5,17 +5,31 @@ package net.ted80.MetalbugsServer.network.client
 	import flash.events.ProgressEvent;
 	import flash.net.Socket;
 	import net.ted80.MetalbugsServer.data.ServerLog;
+	import net.ted80.MetalbugsServer.network.NetworkID;
 	
 	public class ClientConnection 
 	{
-		public var networkID:int;
 		public var socket:Socket;
 		public var remoteAdress:String;
 		public var disconnected:Boolean;
 		
-		public function ClientConnection(s:Socket, id:int) 
+		public var networkID:int;
+		public var playerName:String = "Player";
+		public var playerID:int;
+		public var ready:Boolean;
+		
+		public var posX:Number = 0;
+		public var posY:Number = 0;
+		public var velD:Number = 0;
+		public var velS:Number = 0;
+		public var size:int = 0;
+		public var flashLight:int = 0;
+		
+		public function ClientConnection(s:Socket, nid:int, pid:int) 
 		{
-			networkID = id;
+			networkID = nid;
+			playerID = pid;
+			ready = false;
 			
 			socket = s;
 			socket.addEventListener(Event.CLOSE, onClientLost);
@@ -37,7 +51,7 @@ package net.ted80.MetalbugsServer.network.client
 		
 		public function onClientLost(e:Event):void
 		{
-			ServerLog.addMessage("NETWORK", "Connection timed-out " + remoteAdress);
+			ServerLog.addMessage("NETWORK", "Connection closed! " + remoteAdress);
 			disconnected = true;
 		}
 		
@@ -48,8 +62,37 @@ package net.ted80.MetalbugsServer.network.client
 			disconnected = true;
 		}
 		
+		public function onUDPupdate(s:String):void
+		{
+			var sa:Array = s.split("#");
+			var para:Array = sa[1].split("&");
+			
+			posX = parseFloat(para[0]);
+			posY = parseFloat(para[1]);
+			velD = parseFloat(para[2]);
+			velS = parseFloat(para[3]);
+			size = parseInt(para[4]);
+			flashLight = parseInt(para[5]);
+		}
+		
 		public function onRecieveData(e:ProgressEvent):void
 		{
+			var s:String = socket.readUTF();
+			var sa:Array = s.split("#");
+			
+			var netID:int = parseInt(sa[0]);
+			if (netID == NetworkID.CLIENT_WELCOME)
+			{
+				playerName = sa[1];
+				ServerLog.addMessage("LOBBY", playerName + " joined the game!");
+				ready = true;
+			}
+		}
+		
+		public function send(s:String):void
+		{
+			socket.writeUTF(s);
+			socket.flush();
 		}
 	}
 }

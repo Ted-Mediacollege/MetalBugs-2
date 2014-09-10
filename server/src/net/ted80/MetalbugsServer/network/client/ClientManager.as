@@ -5,6 +5,9 @@ package net.ted80.MetalbugsServer.network.client
 	import flash.net.ServerSocket;
 	import flash.events.ServerSocketConnectEvent;
 	import net.ted80.MetalbugsServer.data.ServerLog;
+	import net.ted80.MetalbugsServer.network.NetworkID;
+	import net.ted80.MetalbugsServer.data.Settings;
+	import net.ted80.MetalbugsServer.data.GameState;
 	
 	public class ClientManager 
 	{
@@ -24,7 +27,7 @@ package net.ted80.MetalbugsServer.network.client
 			
 			udpSocket = new DatagramSocket();
 			udpSocket.addEventListener(DatagramSocketDataEvent.DATA, onUDPdata);
-			udpSocket.bind(2023);
+			udpSocket.bind(2022 + 1);
 			udpSocket.receive();
 			ServerLog.addMessage("NETWORK", "UDP connection is ready!");
 			
@@ -48,15 +51,44 @@ package net.ted80.MetalbugsServer.network.client
 
 		public function onIncommingConnection(e:ServerSocketConnectEvent):void
 		{
-			ServerLog.addMessage("NETWORK", "Incomming connection! " + e.socket.remoteAddress);
-			clients.push(new ClientConnection(e.socket, nextNetworkID));
-			nextNetworkID++;
+			if(!GameState.LOBBY) //REJECT IF NOT IN LOBBY
+			{
+				ServerLog.addMessage("NETWORK", "Rejected connection " + e.socket.remoteAddress + ", Reason: Game is already playing");
+				e.socket.writeUTF(NetworkID.SERVER_REJECT + "#" + NetworkID.REJECT_PLAYING);
+				e.socket.flush();
+			}
+			else
+			{
+				var nextPlayerID:int = getNextAvailibleID();
+				
+				if (nextPlayerID >= Settings.MAX_PLAYERS) //REJECT IF FULL
+				{ 
+					ServerLog.addMessage("NETWORK", "Rejected connection " + e.socket.remoteAddress + ", Reason: Game is full");
+					e.socket.writeUTF(NetworkID.SERVER_REJECT + "#" + NetworkID.REJECT_FULL);
+					e.socket.flush();
+				}
+				else //WELCOME PLAYER AND ASK FOR NAME
+				{
+					ServerLog.addMessage("NETWORK", "Incomming connection! " + e.socket.remoteAddress + " PlayerID: " + nextPlayerID);
+					e.socket.writeUTF(NetworkID.SERVER_WELCOME + "#" + nextNetworkID + "&" + nextPlayerID);
+					e.socket.flush();
+					clients.push(new ClientConnection(e.socket, nextNetworkID, nextPlayerID));
+					nextNetworkID++;
+				}
+			}
 		}
 		
 		public function onUDPdata(e:DatagramSocketDataEvent):void
 		{
-			//use network id to find client
-			trace("UDP data!");
+			var str:String = e.data.readUTF();
+			var id:int = parseInt((str.split("#"))[0]);
+			for (var i:int = clients.length - 1; i > -1; i-- )
+			{
+				if (clients[i].networkID == id)
+				{
+					clients[i].onUDPupdate(str);
+				}
+			}
 		}
 		
 		public function tick():void
@@ -76,6 +108,31 @@ package net.ted80.MetalbugsServer.network.client
 					clients.splice(i, 1);
 				}
 			}
+		}
+		
+		public function getNextAvailibleID():int
+		{
+			if (clients.length == 0)
+			{
+				return 0;
+			}
+			
+			for (var id:int = 0; id < 100; id++ )
+			{
+				var l:int = clients.length;
+				for (var p:int = 0; p < l; p++ )
+				{
+					if (id == clients[p].playerID)
+					{
+						break;
+					}
+					if (p == l - 1)
+					{
+						return id;
+					}
+				}
+			}
+			return -1;
 		}
 	}
 }
