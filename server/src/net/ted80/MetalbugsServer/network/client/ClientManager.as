@@ -76,6 +76,7 @@ package net.ted80.MetalbugsServer.network.client
 			{
 				if (clients[i].networkID == id)
 				{
+					trace("FROM " + id);
 					clients[i].onUDPupdate(str);
 				}
 			}
@@ -134,7 +135,9 @@ package net.ted80.MetalbugsServer.network.client
 				{
 					var ba:ByteArray = new ByteArray();
 					ba.writeUTF(message);
-					udpSocket.send(ba, 0, 0, clients[i].socket.remoteAddress, clients[i].socket.remotePort);
+					udpSocket.send(ba, 0, 0, clients[i].socket.remoteAddress, clients[i].socket.remotePort + 2);
+					
+					trace("TO " + playerID);
 				}
 			}
 		}
