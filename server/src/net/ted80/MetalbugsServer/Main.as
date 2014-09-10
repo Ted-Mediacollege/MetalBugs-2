@@ -7,11 +7,13 @@ package net.ted80.MetalbugsServer
 	import net.ted80.MetalbugsServer.network.client.ClientManager;
 	import net.ted80.MetalbugsServer.network.policy.PolicyManager;
 	import net.ted80.MetalbugsServer.data.GameState;
+	import net.ted80.MetalbugsServer.world.World;
 
 	public class Main extends Sprite
 	{
 		public static var policyManager:PolicyManager;
 		public static var clientManager:ClientManager;
+		public static var world:World;
 		
 		public var log:GuiLog;
 		
@@ -36,8 +38,13 @@ package net.ted80.MetalbugsServer
 			if (policyManager != null) { policyManager.destroy(); }
 			policyManager = new PolicyManager();
 			
+			//CLIENT MANAGER
 			if (clientManager != null) { clientManager.destroy(); }
 			clientManager = new ClientManager();
+			
+			//WORLD
+			if (world != null) { world = null; }
+			world = new World();
 			
 			ServerLog.addMessage("SERVER", "Server is ready!");
 		}
@@ -46,6 +53,7 @@ package net.ted80.MetalbugsServer
 		{
 			log.tick();
 			clientManager.tick();
+			world.tick();
 		}
 	}
 }

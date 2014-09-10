@@ -4,6 +4,7 @@ package net.ted80.MetalbugsServer.network.client
 	import flash.net.DatagramSocket;
 	import flash.net.ServerSocket;
 	import flash.events.ServerSocketConnectEvent;
+	import flash.utils.ByteArray;
 	import net.ted80.MetalbugsServer.data.ServerLog;
 	import net.ted80.MetalbugsServer.network.NetworkID;
 	import net.ted80.MetalbugsServer.data.GameState;
@@ -96,6 +97,64 @@ package net.ted80.MetalbugsServer.network.client
 				{
 					clients.splice(i, 1);
 				}
+			}
+		}
+		
+		public function sendAllPostitions():void
+		{
+			for (var i:int = 0; i < clients.length; i++) 
+			{
+				sendUDPToAllExcept(
+					clients[i].playerID + "&" + 
+					clients[i].posX + "&" + 
+					clients[i].posY + "&" + 
+					clients[i].velD + "&" + 
+					clients[i].velS + "&" + 
+					clients[i].size + "&" + 
+					clients[i].flashLight,
+					clients[i].playerID);
+			}
+		}
+		
+		public function sendMessageToAll(id:int, message:String):void
+		{
+			sendMessageToAllExcept(id, message, -1);
+		}
+			
+		public function sendUDPToAll(message:String):void
+		{
+			sendUDPToAllExcept(message, -1);
+		}
+		
+		public function sendUDPToAllExcept(message:String, playerID:int):void
+		{
+			for (var i:int = 0; i < clients.length; i++ )
+			{
+				if (clients[i].playerID != playerID)
+				{
+					var ba:ByteArray = new ByteArray();
+					ba.writeUTF(message);
+					udpSocket.send(ba, 0, 0, clients[i].socket.remoteAddress, clients[i].socket.remotePort);
+				}
+			}
+		}
+		
+		public function sendMessageToAllExcept(id:int, message:String, playerID:int):void
+		{
+			for (var i:int = 0; i < clients.length; i++ )
+			{
+				if (clients[i].playerID != playerID)
+				{
+					clients[i].send(id + "#" + message);
+				}
+			}
+		}
+		
+		public function sendMessageToClient(id:int, message:String, c:int):void
+		{
+			if (c < clients.length)
+			{
+				clients[c].send(id + "#" + message);
 			}
 		}
 		

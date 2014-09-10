@@ -4,8 +4,10 @@ package net.ted80.MetalbugsServer.network.client
 	import flash.events.IOErrorEvent;
 	import flash.events.ProgressEvent;
 	import flash.net.Socket;
+	import flash.utils.ByteArray;
 	import net.ted80.MetalbugsServer.data.ServerLog;
 	import net.ted80.MetalbugsServer.network.NetworkID;
+	import net.ted80.MetalbugsServer.Main;
 	
 	public class ClientConnection 
 	{
