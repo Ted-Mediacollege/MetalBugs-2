@@ -84,7 +84,7 @@ package net.ted80.MetalbugsServer.network.client
 			if (netID == NetworkID.CLIENT_WELCOME)
 			{
 				playerName = sa[1];
-				ServerLog.addMessage("LOBBY", playerName + " joined the game!");
+				ServerLog.addMessage("NETWORK", playerName + " joined the game!");
 				ready = true;
 			}
 		}

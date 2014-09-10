@@ -6,7 +6,6 @@ package net.ted80.MetalbugsServer.network.client
 	import flash.events.ServerSocketConnectEvent;
 	import net.ted80.MetalbugsServer.data.ServerLog;
 	import net.ted80.MetalbugsServer.network.NetworkID;
-	import net.ted80.MetalbugsServer.data.Settings;
 	import net.ted80.MetalbugsServer.data.GameState;
 	
 	public class ClientManager 
@@ -60,21 +59,11 @@ package net.ted80.MetalbugsServer.network.client
 			else
 			{
 				var nextPlayerID:int = getNextAvailibleID();
-				
-				if (nextPlayerID >= Settings.MAX_PLAYERS) //REJECT IF FULL
-				{ 
-					ServerLog.addMessage("NETWORK", "Rejected connection " + e.socket.remoteAddress + ", Reason: Game is full");
-					e.socket.writeUTF(NetworkID.SERVER_REJECT + "#" + NetworkID.REJECT_FULL);
-					e.socket.flush();
-				}
-				else //WELCOME PLAYER AND ASK FOR NAME
-				{
-					ServerLog.addMessage("NETWORK", "Incomming connection! " + e.socket.remoteAddress + " PlayerID: " + nextPlayerID);
-					e.socket.writeUTF(NetworkID.SERVER_WELCOME + "#" + nextNetworkID + "&" + nextPlayerID);
-					e.socket.flush();
-					clients.push(new ClientConnection(e.socket, nextNetworkID, nextPlayerID));
-					nextNetworkID++;
-				}
+				ServerLog.addMessage("NETWORK", "Incomming connection! " + e.socket.remoteAddress + " PlayerID: " + nextPlayerID);
+				e.socket.writeUTF(NetworkID.SERVER_WELCOME + "#" + nextNetworkID + "&" + nextPlayerID);
+				e.socket.flush();
+				clients.push(new ClientConnection(e.socket, nextNetworkID, nextPlayerID));
+				nextNetworkID++;
 			}
 		}
 		

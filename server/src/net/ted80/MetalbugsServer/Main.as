@@ -45,6 +45,7 @@ package net.ted80.MetalbugsServer
 		public function tick(e:Event):void
 		{
 			log.tick();
+			clientManager.tick();
 		}
 	}
 }
