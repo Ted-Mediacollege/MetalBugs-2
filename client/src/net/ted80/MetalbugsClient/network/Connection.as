@@ -18,14 +18,17 @@ package net.ted80.MetalbugsClient.network
 		public var serverPORT:int;
 		
 		public var connected:Boolean;
+		public var failed:Boolean;
 		
 		public var networkID:int;
 		public var playerID:int;
 		public var playerName:String;
 		
-		public function Connection(s:String) 
+		public function Connection() 
 		{
-			playerName = s;
+			serverIP = "127.0.0.1";
+			serverPORT = 2022;
+			playerName = "RandomGuy";
 			
 			socketTCP = new Socket();
 			socketTCP.addEventListener(Event.CONNECT, onConnect);
@@ -42,6 +45,9 @@ package net.ted80.MetalbugsClient.network
 		{
 			try
 			{
+				connected = false;
+				failed = false;
+				
 				socketTCP.connect(serverIP, serverPORT);
 				socketUDP.bind(serverPORT + 1);
 				socketUDP.receive();
@@ -65,11 +71,15 @@ package net.ted80.MetalbugsClient.network
 		public function onIOError(e:IOErrorEvent):void
 		{
 			trace("NETWORK IO ERROR");
+			failed = true;
+			connected = false;
 		}
 		
 		public function onSecurityError():void
 		{
 			trace("SECURITY ERROR");
+			failed = true;
+			connected = false;
 		}
 		
 		public function onUDPdata(e:DatagramSocketDataEvent):void
