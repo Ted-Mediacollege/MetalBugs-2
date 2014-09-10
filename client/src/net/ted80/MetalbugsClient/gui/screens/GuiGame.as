@@ -61,7 +61,8 @@ package net.ted80.MetalbugsClient.gui.screens
 			
 			if (gameEnded)
 			{
-				//engine.switchGui(new GuiLobby());
+				main.switchGui(new GuiLobby());
+				
 			}
 		}
 		

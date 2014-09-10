@@ -7,6 +7,10 @@ package net.ted80.MetalbugsClient.gui.screens
 	
 	public class GuiLobby extends GuiScreen
 	{
+		public static var started:Boolean = false;
+		public static var spawnX:int = 0;
+		public static var spawnY:int = 0;
+		
 		public function GuiLobby() 
 		{
 		}
@@ -15,6 +19,8 @@ package net.ted80.MetalbugsClient.gui.screens
 		{
 			buttonList = new Vector.<GuiButton>();
 			
+			started = false;
+			
 			var temp:GuiText = new GuiText(Main.CenterWidth, Main.CenterHeight, 25, 0xFFFFFF, "center");
 			temp.setText("Waiting for other players to connect!");
 			addChild(temp);
@@ -22,14 +28,10 @@ package net.ted80.MetalbugsClient.gui.screens
 		
 		override public function tick():void
 		{
-			/*
-			Main.connection.tick();
-			
 			if (started)
 			{
-				//engine.switchGui(new GuiGame(spawnX, spawnY));
+				main.switchGui(new GuiGame(spawnX, spawnY));
 			}
-			*/
 		}
 		
 		override public function action(id:int):void

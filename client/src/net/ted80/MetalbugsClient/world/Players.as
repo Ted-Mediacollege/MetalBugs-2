@@ -7,6 +7,7 @@ package net.ted80.MetalbugsClient.world
 	import net.ted80.MetalbugsClient.Main;
 	import net.ted80.MetalbugsClient.data.Settings;
 	import net.ted80.MetalbugsClient.network.NetworkID;
+	import flash.utils.ByteArray;
 
 	public class Players extends MovieClip
 	{
@@ -58,7 +59,10 @@ package net.ted80.MetalbugsClient.world
 			if (timer_pos < 0)
 			{
 				timer_pos = 15;
-				Main.connection.send(NetworkID.CLIENT_UPDATE, int(Math.floor(player.PosX)) + "&" + int(Math.floor(player.PosY)) + "&" + int(Math.floor(player.VelocityDirection * 100)) + "&" + int(Math.floor(player.VelocitySpeed * 100)) + "&" + player.flashlight);
+				var ba:ByteArray = new ByteArray();
+				ba.writeUTF(Main.connection.networkID + "#" + player.PosX + "&" + player.PosY + "&" + player.VelocityDirection + "&" + player.VelocitySpeed + "&" + player.Evolution + "&" + player.flashlight);
+				Main.connection.socketUDP.send(ba, 0, 0, Main.connection.serverIP, Main.connection.serverPORT + 1);
+				trace("TO");
 			}
 		}
 	}
